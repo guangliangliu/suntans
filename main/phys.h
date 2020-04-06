@@ -28,6 +28,10 @@ typedef enum _interpolation {
   QUAD, PEROT, LSQ
 } interpolation;
 
+// the module setup lgl
+typedef struct _moduleT {
+  int lag_particle_on, lag_cold_start;
+} moduleT;
 /*
  * Main physical variable struct.
  *
@@ -202,12 +206,23 @@ typedef struct _propT {
   char  starttime[15], basetime[15]; 
 } propT;
 
+//lgl
+void ReadModules(moduleT **module, int myproc);
+void lagrange(gridT *grid, physT *phys, propT *prop, moduleT *module, int myproc, int numprocs, MPI_Comm comm);
+
 
 /*
  * Public function declarations.
  *
  */
-void Solve(gridT *grid, physT *phys, propT *prop, int myproc, int numprocs, MPI_Comm comm);
+// lgl
+void Solve(gridT *grid, physT *phys, propT *prop, moduleT *module, int myproc, int numprocs, MPI_Comm comm);
+// void Solve(gridT *grid, physT *phys, propT *prop, int myproc, int numprocs, MPI_Comm comm);
+
+void ComputeUC(REAL **ui, REAL **vi, physT *phys, gridT *grid, int myproc, interpolation interp);
+void ComputeNodalVelocity(physT *phys, gridT *grid, interpolation interp, int myproc);
+//void ComputeRT0Velocity(REAL* tempu, REAL* tempv, REAL e1n1, REAL e1n2,
+//                               REAL e2n1, REAL e2n2, REAL Uj1, REAL Uj2);
 void AllocatePhysicalVariables(gridT *grid, physT **phys, propT *prop);
 void FreePhysicalVariables(gridT *grid, physT *phys, propT *prop);
 void InitializePhysicalVariables(gridT *grid, physT *phys, propT *prop, int myproc, MPI_Comm comm);

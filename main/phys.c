@@ -80,11 +80,13 @@ static void StoreVariables(gridT *grid, physT *phys);
 static void NewCells(gridT *grid, physT *phys, propT *prop);
 static void WPredictor(gridT *grid, physT *phys, propT *prop,
     int myproc, int numprocs, MPI_Comm comm);
-void ComputeUC(REAL **ui, REAL **vi, physT *phys, gridT *grid, int myproc, interpolation interp);
+// lgl
+// inline void ComputeUC(REAL **ui, REAL **vi, physT *phys, gridT *grid, int myproc, interpolation interp);
 static void ComputeUCPerot(REAL **u, REAL **uc, REAL **vc, gridT *grid);
 static void ComputeUCLSQ(REAL **u, REAL **uc, REAL **vc, gridT *grid, physT *phys);
 static void ComputeUCRT(REAL **ui, REAL **vi, physT *phys, gridT *grid, int myproc);
-static void ComputeNodalVelocity(physT *phys, gridT *grid, interpolation interp, int myproc);
+// lgl
+// static void ComputeNodalVelocity(physT *phys, gridT *grid, interpolation interp, int myproc);
 static void  ComputeTangentialVelocity(physT *phys, gridT *grid, interpolation ninterp, interpolation tinterp,int myproc);
 static void  ComputeQuadraticInterp(REAL x, REAL y, int ic, int ik, REAL **uc, 
     REAL **vc, physT *phys, gridT *grid, interpolation ninterp, 
@@ -1003,8 +1005,12 @@ REAL DepthFromDZ(gridT *grid, physT *phys, int i, int kind) {
  * This is the main solving routine and is called from suntans.c.
  *
  */
-void Solve(gridT *grid, physT *phys, propT *prop, int myproc, int numprocs, MPI_Comm comm)
+
+// lgl
+void Solve(gridT *grid, physT *phys, propT *prop, moduleT *module, int myproc, int numprocs, MPI_Comm comm)
 {
+  // void Solve(gridT *grid, physT *phys, propT *prop, int myproc, int numprocs, MPI_Comm comm)
+  // {
   int i, k, n, blowup=0;
   REAL t0;
   metinT *metin;
@@ -1376,6 +1382,10 @@ void Solve(gridT *grid, physT *phys, propT *prop, int myproc, int numprocs, MPI_
     if(blowup)
       break;
 
+	// lgl
+	if (module->lag_particle_on) {
+	  lagrange(grid, phys, prop, module, myproc, numprocs, comm);
+	}	
     //Close all open netcdf file
     /* 
     if(prop->n==prop->nsteps+prop->nstart) {
@@ -4717,7 +4727,9 @@ static void  ComputeTangentialVelocity(physT *phys, gridT *grid,
  * which are outlined in Wang et al, 2011.
  *
  */
-static void ComputeNodalVelocity(physT *phys, gridT *grid, interpolation interp, int myproc) {
+// lgl
+void ComputeNodalVelocity(physT *phys, gridT *grid, interpolation interp, int myproc) {
+  // static void ComputeNodalVelocity(physT *phys, gridT *grid, interpolation interp, int myproc) {
   //  int in, ink, e1, e2, cell, cp1, cp2;
   int in, ink, inpc, ie, intemp, cell, cp1, cp2,
       e1, e2, n1, n2, onode;
@@ -4989,4 +5001,19 @@ static void GetMomentumFaceValues(REAL **uface, REAL **ui, REAL **boundary_ui, R
         }
       }
     }
+}
+
+// lgl
+void ReadModules(moduleT **module, int myproc)
+{
+
+  printf("ReadModules\n");
+  // allocate memory
+  *module = (moduleT *)SunMalloc(sizeof(moduleT),"ReadModules");
+
+  // set values from suntans.dat file (DATAFILE)
+  (*module)->lag_particle_on = MPI_GetValue(DATAFILE,"lag_particle_on","ReadModules",myproc);
+  (*module)->lag_cold_start = MPI_GetValue(DATAFILE,"lag_cold_start","ReadModules",myproc);
+  printf("lag_particles_on %d lag_cold_start %d \n",(*module)->lag_particle_on,(*module)->lag_cold_start);
+
 }

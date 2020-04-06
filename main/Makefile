@@ -44,6 +44,20 @@ else
   TRIANGLESRC = triangulate-notriangle.c
 endif	
 
+ifneq ($(LAPACKHOME),)
+  LAPACKINCLUDE = -I$(LAPACKHOME) -I$(LAPACKHOME)/lapacke/include
+  LAPACKLIB = $(LAPACKHOME)/liblapacke.a $(LAPACKHOME)/liblapack.a $(LAPACKHOME)/librefblas.a
+  LAPACKLIBDIR = -L$(LAPACKHOME)
+  LAPACKLD =
+  LAPACKSRC =
+else
+  LAPACKINCLUDE =
+  LAPACKLIB =
+  LAPACKLIBDIR =
+  LAPACKLD =
+  LAPACKSRC =
+endif
+
 ifneq ($(PARMETISHOME),)
   PARMETISINCLUDE = -I$(PARMETISHOME)/ParMETISLib
   PARMETISLIB = $(PARMETISHOME)/libparmetis.a $(PARMETISHOME)/libmetis.a
@@ -75,10 +89,10 @@ endif
 # For the Altix
 #LD = $(CC) -lmpi
 LD = $(CC)
-LIBS = $(PARMETISLIB) $(TRIANGLELIB) $(NETCDFLD)
-LIBDIR = $(PARMETISLIBDIR) $(TRIANGLELIBDIR) $(NETCDFLIBDIR)
-LDFLAGS = -lm $(LIBDIR) $(LIBS)
-INCLUDES = $(PARMETISINCLUDE) $(TRIANGLEINCLUDE) $(NETCDFINCLUDE) 
+LIBS = $(PARMETISLIB) $(TRIANGLELIB) $(NETCDFLD) $(LAPACKLIB) 
+LIBDIR = $(PARMETISLIBDIR) $(TRIANGLELIBDIR) $(NETCDFLIBDIR) $(LAPACKLIBDIR)
+LDFLAGS = -lm -lgfortran $(LIBDIR) $(LIBS) -lpthread
+INCLUDES = $(PARMETISINCLUDE) $(TRIANGLEINCLUDE) $(NETCDFINCLUDE) $(LAPACKINCLUDE)
 DEFINES = $(MPIDEF) $(NETCDFDEF)
 CFLAGS = $(OPTFLAGS) $(INCLUDES) $(DEFINES)
 
@@ -90,7 +104,7 @@ DEPFLAGS = -Y
 
 SRCS = 	mympi.c grid.c gridio.c report.c util.c fileio.c phys.c physio.c suntans.c initialization.c memory.c \
 	turbulence.c boundaries.c check.c scalars.c tvd.c timer.c profiles.c state.c tides.c \
-	sources.c diffusion.c met.c averages.c age.c merge.c sendrecv.c sediments.c \
+	sources.c diffusion.c met.c averages.c age.c merge.c sendrecv.c sediments.c lagrange.c\
 	$(TRIANGLESRC) $(PARMETISSRC) $(MPIFILE) $(NETCDFSRC)
 OBJS = $(SRCS:.c=.o)
 
@@ -161,3 +175,6 @@ fileio.o: fileio.h defaults.h suntans.h
 met.o: met.h suntans.h fileio.h memory.h grid.h phys.h util.h mynetcdf.h
 mynetcdf.o: mynetcdf.h suntans.h phys.h grid.h met.h boundaries.h
 averages.o: averages.h phys.h grid.h met.h
+lagrange.o: grid.h fileio.h phys.h suntans.h mympi.h util.h initialization.h
+lagrange.o: memory.h boundaries.h check.h scalars.h timer.h
+lagrange.o: profiles.h state.h diffusion.h sources.h lagrange.h

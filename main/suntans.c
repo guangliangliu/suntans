@@ -32,6 +32,8 @@ int main(int argc, char *argv[])
   physT *phys;
   propT *prop;
 
+  //lgl
+  moduleT *module;
   StartMpi(&argc,&argv,&comm,&myproc,&numprocs);
 
   ParseFlags(argc,argv,myproc);
@@ -43,6 +45,8 @@ int main(int argc, char *argv[])
   
 
   if(SOLVE) {
+    // read modules
+	ReadModules(&module,myproc); //add by lgl 
     //read parameters in suntans.dat into the solver
     ReadProperties(&prop,grid,myproc);
     // give space and initialize dzf(edge) dzz(center) dzzold(center)
@@ -55,7 +59,9 @@ int main(int argc, char *argv[])
     else
       InitializePhysicalVariables(grid,phys,prop,myproc,comm);
 
-    Solve(grid,phys,prop,myproc,numprocs,comm);
+	// Solve(grid,phys,prop,myproc,numprocs,comm);
+	//changed by lgl
+	Solve(grid,phys,prop,module,myproc,numprocs,comm);
     //    FreePhysicalVariables(grid,phys,prop);
     //    FreeTransferArrays(grid,myproc,numprocs,comm);
   }

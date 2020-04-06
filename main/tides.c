@@ -87,7 +87,9 @@ void SetTideComponents(gridT *grid, int myproc) {
     fclose(ofid);
 
     MPI_Finalize();
-    exit(EXIT_FAILURE);
+    //change by lgl 2020.04.06
+    //exit(EXIT_FAILURE);
+    exit(0);
   } else {
     if(VERBOSE>2 && myproc==0) printf("Reading tidal data.\n");
 
@@ -95,8 +97,12 @@ void SetTideComponents(gridT *grid, int myproc) {
     fread(&numtides,sizeof(int),1,ifid);
     // Read in number of edges in file
     fread(&numboundaryedges,sizeof(int),1,ifid);
+	// lgl
+	printf("numtides %d,numboundaryedges %d \n",numtides,numboundaryedges);
 
     if(numboundaryedges!=grid->edgedist[3]-grid->edgedist[2]+grid->celldist[2]-grid->celldist[1]) {
+	  // lgl
+	  // printf("grid->edgedist[3] %d,grid->edgedist[2] %d,grid->celldist[2] %d,grid->celldist[1] %d\n",grid->edgedist[3],grid->edgedist[2],grid->celldist[2],grid->celldist[1]);  
       printf("Error reading %s.  Number of edges does not match current run!\n",istr);
 
       MPI_Finalize();
