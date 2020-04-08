@@ -24,7 +24,18 @@
  */
 void StartMpi(int *argc, char **argv[], MPI_Comm *comm, int *myproc, int *numprocs)
 {
+#if 1
+  int provided;	
+  MPI_Init_thread(argc, argv, MPI_THREAD_MULTIPLE, &provided);
+  if(provided != MPI_THREAD_MULTIPLE)        {            
+	printf("MPI do not Support Multiple thread\n");          
+	MPI_Abort(MPI_COMM_WORLD,-1);        
+  }else{
+	printf("MPI Support Multiple thread\n");   
+  }
+#else
   MPI_Init(argc,argv);
+#endif
   MPI_Comm_dup(MPI_COMM_WORLD,comm);
   MPI_Comm_size(*comm, numprocs);
   MPI_Comm_rank(*comm, myproc);

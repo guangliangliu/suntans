@@ -1,0 +1,31 @@
+########################################################################
+#
+# Lagrangian particle tracking module
+#
+########################################################################
+# If particle_type = 0; particle(s) will be geopotential (constant depth) particles.
+# If particle_type = 1; particle(s) will be isobaric particles (p=g*(z+zeta)=constant). 
+# If particle_type = 2; particle(s) will be 2D Lagrangrian particle tracking.
+# If particle_type = 3; particle(s) will be 3D Lagrangrian particle tracking.
+particle_type        2           #
+# the initial time at which the locations of particles are written into the output file (unit: time steps).
+# lag_start            10        #
+lag_start            1           #
+# the time interval for the output (unit: time steps).
+lag_interval 	     1           #
+# the end time at which the locations of particles are written into the output file (unit: time steps).
+# lag_end              3           #
+lag_end              2000        #
+# the last time step to output the locations of particles
+# only restart 
+# lag_next           10
+########################################################################
+# the restart filename
+# lag_restart_file = 'none'
+# selection of scalar variables to include with output. 
+# these scalar variables include salinity, temperature, density. 
+# users must set variable name.
+# lag_scal_choice = 'salinity'
+########################################################################
+LagOutputFile       lagout.dat   #
+EulOutputFile       eulout.dat   #
